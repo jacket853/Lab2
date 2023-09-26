@@ -1,7 +1,8 @@
 from __future__ import annotations
 import math as m
+from types import NoneType
 
-def input_integer(prompt: str, lower_lim: int=-m.inf, upper_lim: int=m.inf) -> int:
+def input_integer(prompt: str="", lower_lim: int=-m.inf, upper_lim: int=m.inf) -> int:
     while True:
         try:
             int_input = int(input(prompt))
@@ -21,13 +22,14 @@ def display_menu() -> None:
     menu += "On the nightstand is a lamp, a shoestring, and a paperclip. What do you want to do? "
     menu += "\n Type 'exit' to give up."
     print(menu)
-    print_options("Inspect the stuff on the nightstand", "Find a way out", "Stare blankly at the wall")
+    print_options("Inspect the stuff on the nightstand", "Find a way out", "Stare blankly at the wall", "Stumble a bit")
 
-def print_options(*options) -> None:
+# Satisfies 7
+def print_options(*options: str) -> None:
     for i, option in enumerate(options):
         print(f"{i+1}. {option}")
     
-# Satifies 12
+# Satifies 6, 12
 def inspect_nightstand(inventory: list, objs: list=None) -> list:
     if objs is None:
         print("Objs to be entered cannot be default.")
@@ -44,10 +46,19 @@ def inspect_nightstand(inventory: list, objs: list=None) -> list:
     elif choice == 3 and "paperclip" not in inventory:
         inventory, objs = update_inventory(inventory, objs, "paperclip")
     elif choice == 4 and objs is not []:
-        inventory, objs = update_inventory(inventory, objs, None)
+        inventory, objs = update_inventory(inventory, objs)
     else:
         print("\nThe item you would like is no longer on the nightstand.")
 
+    return inventory, objs
+
+# Satisfies 11
+def update_inventory(inventory: list, objs: list, add_objs: NoneType=None) -> list:
+    if add_objs is not None:
+        inventory.append(add_objs)
+        objs.remove(add_objs)
+    else:
+        inventory.extend(objs)
     return inventory, objs
 
 def leave_room(inventory: list):
@@ -79,22 +90,36 @@ def leave_room(inventory: list):
     elif len(inventory) > 1 and choice == 2:
         print("\nYou are too heavy, so you fall straight through the thin aluminum of the air duct onto the hard floor.")
 
-def update_inventory(inventory: list, objs: list, add_objs: str) -> list:
-    if add_objs is not None:
-        inventory.append(add_objs)
-        objs.remove(add_objs)
-    else:
-        inventory.extend(objs)
-    return inventory, objs
-
 def stare() -> None:
     print("\nYou stare blankly at the wall. What did you expect?")
+
+# Satisfies 13, 14
+def attempt_enter_restricted_area(area_name, first_loc=None, second_loc=None) -> None:
+  if first_loc is not None or second_loc is not None:
+    raise ValueError(f"Cannot enter {area_name} using given positional or keyword arguments.")
+
+# Satisfies 9, 10
+def print_restricted_area(area_name) -> None:
+  if area_name == "the corner":
+    print("You are now in the corner. There is nothing interesting here.")
+  elif area_name == "the mirror":
+    print("You are now in front of the mirror. Wow, they look familiar!.")
+  else:
+    raise ValueError(f"Unknown restricted area: {area_name}")
+
+def enter_restricted_area(area_name):
+  try:
+    attempt_enter_restricted_area(area_name)
+    print_restricted_area(area_name)
+  except ValueError as error:
+    print(error)
 
 def main():
     inventory = []
     objs = ["lamp", "shoestring", "paperclip"]
     display_menu()
-    choice = input_integer("What do you want to do? ", 1, 3)
+    # Satisfies 2, 4
+    choice = input_integer("What do you want to do? ", 1, 4)
 
     while choice != "exit":
         if choice == 1:
@@ -104,9 +129,17 @@ def main():
             break
         elif choice == 3:
             stare()
+        elif choice == 4:
+            area_choice = input_integer("\n1 to navigate to corner, 2 for the mirror, 3 to walk blindly... -> ", 1, 3)
+            if area_choice == 1:
+                enter_restricted_area(restricted_area_name = "corner")
+            elif area_choice == 2:
+                enter_restricted_area(restricted_area_name = "mirror")
+            elif area_choice == 3:
+                enter_restricted_area(restricted_area_name=None)
 
         display_menu()
-        choice = input_integer("What do you want to do? ", 1, 3)
+        choice = input_integer("What do you want to do? ", 1, 4)
 
     print("Thanks for playing.")
 
