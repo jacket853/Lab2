@@ -61,7 +61,7 @@ def update_inventory(inventory: list, objs: list, add_objs: NoneType=None) -> li
         inventory.extend(objs)
     return inventory, objs
 
-def leave_room(inventory: list):
+def leave_room(inventory: list) -> None:
     print("\nYou have only two choices here.")
     print_options("Try to crawl through the air duct", "Try to unscrew the grate")
     choice = input_integer("\t-> ", 1, 2)
@@ -93,23 +93,24 @@ def leave_room(inventory: list):
 def stare() -> None:
     print("\nYou stare blankly at the wall. What did you expect?")
 
-# Satisfies 13, 14
-def attempt_enter_restricted_area(area_name, first_loc=None, second_loc=None) -> None:
-  if first_loc is not None or second_loc is not None:
-    raise ValueError(f"Cannot enter {area_name} using given positional or keyword arguments.")
+# Satisfies 8, 13, 14
+def attempt_enter_restricted_area(area_name, one_loc=None, two_loc=None) -> None:
+  if one_loc is not None or two_loc is not None:
+    raise ValueError(f"\nCannot enter {area_name} using given arguments.")
 
 # Satisfies 9, 10
-def print_restricted_area(area_name) -> None:
-  if area_name == "the corner":
+def print_restricted_area(area_name: str) -> None:
+  if area_name == "corner":
     print("You are now in the corner. There is nothing interesting here.")
-  elif area_name == "the mirror":
+  elif area_name == "mirror":
     print("You are now in front of the mirror. Wow, they look familiar!.")
   else:
-    raise ValueError(f"Unknown restricted area: {area_name}")
+    raise ValueError(f"\nUnknown restricted area: {area_name}")
 
-def enter_restricted_area(area_name):
+# Satisfies 5
+def enter_restricted_area(area_name, loc_indic=None) -> None:
   try:
-    attempt_enter_restricted_area(area_name)
+    attempt_enter_restricted_area(area_name, loc_indic)
     print_restricted_area(area_name)
   except ValueError as error:
     print(error)
@@ -130,13 +131,18 @@ def main():
         elif choice == 3:
             stare()
         elif choice == 4:
-            area_choice = input_integer("\n1 to navigate to corner, 2 for the mirror, 3 to walk blindly... -> ", 1, 3)
+            area_choice_text = "\n1 to navigate to corner, 2 for the mirror, 3 to walk blindly, "
+            area_choice_text += "4 to walk in the dark but with your eyes open... -> "
+            area_choice = input_integer(area_choice_text, 1, 4)
             if area_choice == 1:
-                enter_restricted_area(restricted_area_name = "corner")
+                enter_restricted_area("corner")
             elif area_choice == 2:
-                enter_restricted_area(restricted_area_name = "mirror")
+                enter_restricted_area("mirror")
             elif area_choice == 3:
-                enter_restricted_area(restricted_area_name=None)
+                enter_restricted_area("Area 51 or something")
+            # Satisfies 1
+            elif area_choice == 4:
+                enter_restricted_area("Knowhere", loc_indic="Knowhere")
 
         display_menu()
         choice = input_integer("What do you want to do? ", 1, 4)
